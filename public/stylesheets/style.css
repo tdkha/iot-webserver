@@ -1,8 +1,129 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-family: 'soka', sans-serif;
+  color: #FA584A;                                     
+  margin: 0px;
+  padding: 0px;
+  background-color: #F4E9DA;
+}
+.outer-container{
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  justify-content: space-between;
+  gap: 18px;
+  margin-left: 18px;
+  margin-right: 2px;
+  margin-top: 8px;
+  
+
+}
+.left-container{
+  display: flex;
+  flex-direction: column;
+
+}
+.right-container{
+  display: flex;
+  flex-direction: column;
+}
+.left-body{
+  margin-top: 8px;
+  max-width: 939px;
+  height: 290px;
+  border: 3px solid #FA584A;
+  display: flex;
+  flex-direction: column;
+
+}
+.right-body{
+  margin-top: 8px;
+  max-width: 96%;
+  height: 220px;
+  border: 3px solid #FA584A;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.content{
+  align-self: flex-end;
+  margin-right: 100px;
+}
+.total{  
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;                               
+}
+.solid {
+  border-left: 400px solid #FA584A;
 }
 
-a {
-  color: #00B7FF;
+.discount-content{
+  padding-top: 0px;
+  display: flex;
+  flex-direction: column;
+  flex: 2;
+  justify-content: space-evenly;
+  gap:8px;
+  align-items: center;
+}
+.discount-word{
+  border-left: 3px solid #FA584A;
+
+}
+.discount-word h3{
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  padding: 20px;
+}
+.outer-button{
+  background-color: #FA584A;
+  padding: 3px;
+}
+.btn{
+  font-family: 'soka', sans-serif;
+  color:#F4E9DA;
+  background-color: #FA584A;
+  max-width: 100%;
+  width: 200px;
+  height: 100%;
+  border: 2px solid #F4E9DA;
+  padding: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+.btn:after {
+  position: absolute;
+  content: "";
+  top: 3px;
+  left: 8px;
+  width: 90%;
+  height: 70%;
+  border: 1px solid #F4E9DA;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.btn:hover:after {
+  opacity: 1;
+}
+.right-footer{
+  margin:18px 0;
+  background-color: #F4E9DA;
+  display: flex;
+  justify-content: space-evenly;
+}
+.footer-btn{
+  max-width: 100%;
+  width: 150px;
+  height: 100%;
+}
+#welcome{
+  max-width: 100%;
+  height: auto;
+}
+#woman{
+  max-width: 97%;
+  height: auto;
 }
