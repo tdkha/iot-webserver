@@ -45,14 +45,15 @@ body {
   justify-content: space-between;
 }
 .content{
-  align-self: flex-end;
-  margin-right: 100px;
+  display: flex;
+  justify-content: space-around;
 }
 .total{  
   display: flex;
   justify-content: space-around;
   flex-direction: row;                               
 }
+
 .solid {
   border-left: 400px solid #FA584A;
 }
@@ -110,6 +111,7 @@ body {
 }
 .right-footer{
   margin:18px 0;
+  max-width: 96%;
   background-color: #F4E9DA;
   display: flex;
   justify-content: space-evenly;

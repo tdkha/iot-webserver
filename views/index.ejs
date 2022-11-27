@@ -14,20 +14,26 @@
         
         <div class="left-body">
           <div class="content">
-
-              <ul>Fish</ul>
-              <ul>Chicken</ul>
-              <ul>Beef</ul>
-              <ul>Vegetables</ul>
-              <ul>Yogurt</ul>
-              <ul>Book</ul>
+            <div class="content-item">
+              <% for(var i=0; i<item.length; i++) {%>
+                <tr>
+                  <td class="item"><%- item[i][0] %></td></td>
+                </tr>  
+             <% } %> 
+            </div>
+            <div class="content-price">
+              <% for(var i=0; i<item.length; i++) {%>
+                <tr>
+                  <td class="item"><%- item[i][1] %> </td>
+                </tr>  
+             <% } %> 
+            </div>
 
           </div>
           <hr class="solid">
           <div class="total">
-            
             <h3>Total:</h3>
-            <h3>1.000.000$</h3>
+            <h3><%= total %> €</h3>
           </div>
         </div>
       </div>
