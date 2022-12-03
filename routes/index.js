@@ -1,3 +1,4 @@
+// this file is not used yet since the MVC model has not been implemented
 var express = require('express');
 var router = express.Router();
 

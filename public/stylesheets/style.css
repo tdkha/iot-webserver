@@ -5,10 +5,81 @@ body {
   padding: 0px;
   background-color: #F4E9DA;
 }
+.overlay{
+  z-index: 1;
+  background:rgba(0,0,0,0.5);
+  opacity: 1;
+  position:absolute;
+  top:0px;
+  right:0px;
+  bottom:0px;
+  left:0px;
+  visibility: hidden;
+}
+
+#popup1{
+  width: 400px;
+  background: #F4E9DA;
+  border-radius: 6px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) scale(0.1);
+  visibility: hidden;
+  text-align: center;
+  padding: 0 30px 30px;
+  transition: transform 0.4s, top 0.4s;
+}
+#popup2{
+  width: 400px;
+  background: #F4E9DA;
+  border-radius: 6px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) scale(0.1);
+  visibility: hidden;
+  text-align: center;
+  padding: 0 30px 30px;
+  transition: transform 0.4s, top 0.4s;
+}
+#popup1 img{
+  margin-top: 20px;
+  width: 80%;
+}
+#popup2 img{
+  margin-top: 20px;
+  width: 100%;
+}
+.popup h2 {
+  font-size: 38px;
+  margin: 30px 0 10px;
+}
+.popup button{
+  font-family: 'soka', sans-serif;
+  color:#F4E9DA;
+  background-color: #FA584A;
+  max-width: 100%;
+  width: 200px;
+  height: 100%;
+  border: none;
+  padding: 8px;
+  position: relative;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+
+.popup button:hover{
+  background-color: #F4E9DA;
+  color: #FA584A;
+  border: 2px solid #FA584A;
+
+}
 .outer-container{
   display: flex;
   flex-direction: row;
-  position: fixed;
+  position: relative;
   justify-content: space-between;
   gap: 18px;
   margin-left: 18px;
@@ -33,7 +104,8 @@ body {
   border: 3px solid #FA584A;
   display: flex;
   flex-direction: column;
-
+  
+  
 }
 .right-body{
   margin-top: 8px;
@@ -44,16 +116,35 @@ body {
   flex-direction: row;
   justify-content: space-between;
 }
+
 .content{
   display: flex;
   justify-content: space-around;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Demonstrate a "mostly customized" scrollbar
+ * (won't be visible otherwise if width/height is specified) */
+.content::-webkit-scrollbar {
+  width: 2px;
+  height: 8px;
+  background-color: #F4E9DA; /* or add it to the track */
+}
+
+/* Add a thumb */
+.content::-webkit-scrollbar-thumb {
+  background: #F4E9DA;
 }
 .total{  
   display: flex;
   justify-content: space-around;
   flex-direction: row;                               
 }
-
+.item{
+  display: flex;
+  flex-direction: column;
+}
 .solid {
   border-left: 400px solid #FA584A;
 }

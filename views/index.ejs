@@ -4,36 +4,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.cdnfonts.com/css/soka" rel="stylesheet">
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <!--
+      <script  type="/module" src="./socket.js"></script>
+    -->
+    
+    
   </head>
   <body>
+    <div class="overlay" id="overlay1">
+      <div id="popup1" class="popup">
+        <img src="happy.png" alt="happy">
+        <h2>Hoorayyyy!</h2>
+        <p>Your order has succeeded. Thank you for shopping with us</p>
+        <button type="submit" onclick="closePopUp1()">OK</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay2">
+      <div id="popup2" class="popup">
+        <img src="angry.png" alt="angry">
+        <h2>Gruuuuu</h2>
+        <p>There is no way you could leave with empty hands</p>
+      </div>
+    </div>
+    </div>
+    
     <div class="outer-container">
       <div class="left-container">
         <div class="left-heading">
           <img src="welcome1.png" alt="welcome" id="welcome">
         </div>
-        
+
         <div class="left-body">
-          <div class="content">
+          <div class="content">   
             <div class="content-item">
-              <% for(var i=0; i<item.length; i++) {%>
-                <tr>
-                  <td class="item"><%- item[i][0] %></td></td>
-                </tr>  
-             <% } %> 
+              <!--
+                content "item" will be placed here
+              -->
+              
             </div>
             <div class="content-price">
-              <% for(var i=0; i<item.length; i++) {%>
-                <tr>
-                  <td class="item"><%- item[i][1] %> </td>
-                </tr>  
-             <% } %> 
+              <!--
+                 content "item-price" will be placed here
+              -->
             </div>
-
           </div>
+
           <hr class="solid">
+
           <div class="total">
             <h3>Total:</h3>
-            <h3><%= total %> €</h3>
+            <h3 id="sum"></h3>
           </div>
         </div>
       </div>
@@ -62,21 +84,125 @@
               <div class="discount-word">
                 <h3>DISCOUNT</h3>
               </div>
-
           </div>
   
           <div class="right-footer">
             <div class="outer-button">
-              <button class="btn footer-btn">DELETE</button>
+                <button class="btn footer-btn" onclick="deleteItem()">DELETE</button>
             </div>
             <div class="outer-button">
-              <button class="btn footer-btn">CANCEL</button>
+              <form action="/cancel" method="POST" class="myForm">
+                <button class="btn footer-btn" type="submit" onclick="openPopUp2()">CANCEL</button>
+              </form>
             </div>
             <div class="outer-button">
-              <button class="btn footer-btn">PAY</button>
+              <button class="btn footer-btn" type="submit" onclick="openPopUp1()" class="myForm">PAY</button>
             </div>
           </div>
       </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" >
+
+      // global variable used for socket io process
+      let socket = io({transports: ["websocket"], upgrade: false});   
+      let itemDiv = document.getElementsByClassName("content-item");
+      let itemPriceDiv = document.getElementsByClassName("content-price");
+      let currentSum = 0;
+      let counter = 0; 
+
+      socket.on("add-item", data => {
+        for(var i = 0; i < data["item"].length; i++) {
+          var h4Item = document.createElement("h4");
+          h4Item.className = "item";
+          h4Item.innerText = data["item"][i][0];
+          itemDiv[i].appendChild(h4Item);
+
+          var h4ItemPrice = document.createElement("h4");
+          h4ItemPrice.className = "item";
+          h4ItemPrice.innerText = data['item'][i][1]+" €";
+          itemPriceDiv[i].appendChild(h4ItemPrice);
+
+          currentSum += Number(data['item'][i][1])
+          counter ++;
+        }
+        sumDisplay(data);
+      });
+
+      socket.on("clear-item", data =>{
+        clearItem(data);
+      });
+
+      socket.on("update-price",data=>{
+        sumDisplay(data);
+      }); 
+
+      function sumDisplay(data){
+        const sum = document.getElementById("sum");
+        sum.innerText = data["total"].toFixed(2)+" €";
+        return sum
+      } 
+
+      function deleteItem(){
+        if(counter > 0){
+          itemDiv[0].removeChild(itemDiv[0].lastChild)
+          itemPriceDiv[0].removeChild(itemPriceDiv[0].lastChild)
+          // send a POST request to update the server
+          let xhr = new XMLHttpRequest();
+          xhr.open('POST', '/delete');
+          xhr.send();
+          counter--;
+        }
+        else{
+          alert("No item is in the cart")    
+        }
+      }
+
+      async function clearItem(data){
+        document.querySelectorAll(".item").forEach(el => el.remove());
+        //const sum = document.getElementById("sum");
+        if (data !== undefined){
+          sumDisplay(data);
+        }else{
+          // this case is triggered when the PAY button is called (closePopUp() function)
+          let xhr = new XMLHttpRequest();
+          xhr.open('POST', '/cancel');
+          xhr.send();
+        }  
+      };
+
+      // this section is for serving CSS when the PAY button is clicked
+      let popUp1 = document.getElementById("popup1");
+      let overlay1 = document.getElementById("overlay1");
+      let popUp2 = document.getElementById("popup2");
+      let overlay2 = document.getElementById("overlay2");
+
+      function openPopUp1(){
+          overlay1.style.visibility = "visible";
+          popup1.style.visibility = "visible";
+          popup1.style.transform = "translate(-50%,-50%) scale(1)";       
+      }
+
+       function openPopUp2(){
+            overlay2.style.visibility = "visible";
+            popup2.style.visibility = "visible";
+            popup2.style.transform = "translate(-50%,-50%) scale(1)";  
+
+      }
+
+      function closePopUp1(){
+        overlay1.style.visibility = "hidden";
+        popup1.style.visibility = "hidden";
+        popup1.style.transform = "translate(-50%,-50%) scale(0.1)";
+        clearItem();
+      }
+      
+      function closePopUp2(){
+        overlay2.style.visibility = "hidden";
+        popup2.style.visibility = "hidden";
+        popup2.style.transform = "translate(-50%,-50%) scale(0.1)"; 
+      }
+
+    </script>
   </body>
 </html>
