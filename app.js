@@ -8,16 +8,17 @@ const port = process.env.PORT || 8000;
 const itemList = require("./item")
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
+app.set('views', path.join(__dirname, 'public/static'));
+//app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
 //app.use(express.static(path.join(__dirname, "js")));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", (req, res) => {
-  res.render("index");  
+  res.render("./index.html");  
 });
 
 // the "items" list is renewed every time a post request is sent while "saved_list" is the one that saves every record
