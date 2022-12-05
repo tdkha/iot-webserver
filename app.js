@@ -4,7 +4,7 @@ const app = express();
 const server = require("http").createServer(app);
 //io is listening to the same port as "app"
 const io = require("socket.io")(server);
-//const port = process.env.PORT || 8000; 
+const port = process.env.PORT || 8000; 
 const itemList = require("./item")
 
 // view engine setup
@@ -15,21 +15,6 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-const price = {
-  "White Bread":1.85,
-  "Eggs":2.25,
-  "Milk":1.75,
-  "Butter":4.15,
-  "Bacon":2.16,
-  "Cucumber (1kg)":3.29,
-  "Tomatoes (1kg)":3.09,
-  "Pork (1kg)":6.99,
-  "Fresh Chicken Breast":9.9,
-  "Beef":22.95,
-};
-
-const qrList = ["FIzOVHpv9DFf9FJ96z","FIstiRsQ6HY7URBnxj","FIenZ7TNbDB2zvTXps","FIWBle8QvYVh3TmlAM","FIYjmHls8xoFyWjXbv","FI4hjBvAr6nj6gQpGh","FItUdmlWFqT1oPdjLp","FIzVXDDOWcPNjh2MQi","FIhmafOXAlBUuqiMwd","FIWACOsAUgGpuyOoTg"]
 
 app.get("/", (req, res) => {
   res.render("index");  
@@ -85,8 +70,8 @@ app.post("/delete", (req,res)=>{
 });
 
 // previous problem was using "app" instead of "server"
-server.listen(8000, function () {  
-  console.log('Node server is running on port 8000');  
+server.listen(port, function () {  
+  console.log(`Node server is running on port ${port}`);  
 });  
 
 module.exports = app;
