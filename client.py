@@ -18,6 +18,8 @@ for item in range(0,len(toBuyList1)):
     conn = http.client.HTTPConnection(host=target_hostname,port=target_port,timeout=10)
     conn.request("POST", "/add", items ,headers=headers)
     time.sleep(0.5)
+response = conn.getresponse()
+print(response.read().decode())
 
 
 

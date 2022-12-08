@@ -9,9 +9,8 @@ const itemList = require("./item")
 
 // view engine setup
 app.set('views', path.join(__dirname, 'public/static'));
-//app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
-//app.use(express.static(path.join(__dirname, "js")));
+app.use(express.static(path.join(__dirname, "js")));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -42,9 +41,12 @@ app.post('/add',(req,res)=>{
         item : items,
         total : sum
     });
+      res.send(item);
     }
   }
 });
+
+
 
 app.post("/cancel",(req,res)=>{
   // empty the saved_list
@@ -69,7 +71,21 @@ app.post("/delete", (req,res)=>{
     })
   }
 });
+app.post("/discount",(req,res)=>{
+  let percent = req.body.parameter;
+  let discountPrice = parseFloat(((saved_list[saved_list.length-1][1])*percent)/100).toFixed(2);
+  let afterDiscount = parseFloat(saved_list[saved_list.length-1][1]-discountPrice).toFixed(2);
 
+  if(saved_list.length > 0){   
+    saved_list[saved_list.length-1][1] -= discountPrice;
+    sum -= discountPrice;
+    io.emit("discount-price",{
+      total : sum,
+      discount : discountPrice,
+      after : afterDiscount
+    })
+  }
+});
 // previous problem was using "app" instead of "server"
 server.listen(port, function () {  
   console.log(`Node server is running on port ${port}`);  

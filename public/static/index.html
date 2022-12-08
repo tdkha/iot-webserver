@@ -65,16 +65,16 @@
           <div class="right-body">
               <div class="discount-content">
                 <div class="outer-button">
-                  <button class="btn">20%</button>
+                  <button class="btn" onclick="discount(20)">20%</button>
                 </div>
                 <div class="outer-button">
-                  <button class="btn">40%</button>
+                  <button class="btn" onclick="discount(40)">40%</button>
                 </div>
                 <div class="outer-button">
-                  <button class="btn">60%</button>
+                  <button class="btn" onclick="discount(60)">60%</button>
                 </div>
                 <div class="outer-button">
-                  <button class="btn">80%</button>
+                  <button class="btn" onclick="discount(80)">80%</button>
                 </div> 
               </div>
               <div class="discount-word">
@@ -104,23 +104,36 @@
       let socket = io({transports: ["websocket"], upgrade: false});   
       let itemDiv = document.getElementsByClassName("content-item");
       let itemPriceDiv = document.getElementsByClassName("content-price");
-      let currentSum = 0;
       let counter = 0; 
+      let saved_disCounter = 0;
+      let disCounter = 0;
+      let discountStatus = [];
+      let saved_price = [];
 
       socket.on("add-item", data => {
         for(var i = 0; i < data["item"].length; i++) {
           var h4Item = document.createElement("h4");
           h4Item.className = "item";
           h4Item.innerText = data["item"][i][0];
-          itemDiv[i].appendChild(h4Item);
 
           var h4ItemPrice = document.createElement("h4");
           h4ItemPrice.className = "item";
           h4ItemPrice.innerText = data['item'][i][1]+" €";
-          itemPriceDiv[i].appendChild(h4ItemPrice);
 
-          currentSum += Number(data['item'][i][1])
+          let priceDiv = document.createElement("div");
+          priceDiv.className = "price-wrapper";
+          priceDiv.appendChild(h4ItemPrice)
+          itemPriceDiv[i].appendChild(priceDiv);
+
+          let productDiv = document.createElement("div");
+          productDiv.className = "product-wrapper";
+          productDiv.appendChild(h4Item);
+          itemDiv[i].appendChild(productDiv);
+
+          saved_price.push(data['item'][i][1]);
           counter ++;
+          discountStatus.push(false);
+          console.log(discountStatus)
         }
         sumDisplay(data);
       });
@@ -133,37 +146,151 @@
         sumDisplay(data);
       }); 
 
+      socket.on("discount-price",data=>{
+        discountDisplay(data)
+        sumDisplay(data);
+      }); 
+      
+      function discount(percentage){
+        if(counter >0){
+          if(disCounter<1){
+            // send an update to server 
+            sendPostJson("/discount",percentage);
+            discountStatus.push(true);
+            console.log(discountStatus)
+            saved_disCounter++;
+            disCounter++;
+          }else{
+            alert("Cannot apply 2 discounts at the same time");
+          }
+        } else{
+          alert("Please add some items to your shopping cart")
+        }
+      };
+
+      function discountDisplay(data){
+        // adding elements to the page after received from server
+        let discountPrice = data["discount"];
+        let afterDiscount = data["after"];
+
+        let div = document.createElement("div");
+        div.className = "discount-wrapper";
+
+        let discount = document.createElement("h4");
+        discount.className = "discount";
+        discount.innerText = -discountPrice;
+        let after = document.createElement("h4");
+        after.className = "discount";
+        after.innerText = afterDiscount;
+        div.appendChild(discount);
+        div.appendChild(after);
+        
+        let emptyDiv = document.createElement("div");
+        emptyDiv.className = "empty-wrapper";
+        let emptyText1 = document.createElement("h4");
+        emptyText1.className = "empty";
+        emptyText1.innerText = "empty";
+        emptyText1.style.color = "#F4E9DA";
+        let emptyText2 = document.createElement("h4");
+        emptyText2.className = "empty";
+        emptyText2.innerText = "empty";
+        emptyText2.style.color = "#F4E9DA";   
+        emptyDiv.appendChild(emptyText1);
+        emptyDiv.appendChild(emptyText2);
+
+        itemDiv[0].appendChild(emptyDiv);
+        itemPriceDiv[0].appendChild(div);
+      };
+
       function sumDisplay(data){
         const sum = document.getElementById("sum");
         sum.innerText = data["total"].toFixed(2)+" €";
-        return sum
-      } 
+        return sum;
+      };
+
+      function sendPost(path){
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', path);
+        xhr.send();
+      };
+
+      function sendPostJson(path,param){
+        let xhr = new XMLHttpRequest();    
+        xhr.open('POST', path);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        let obj = {
+          "parameter" : param
+        };
+        xhr.send(JSON.stringify(obj));
+      };
+
+      function deleteDiscount(){
+        const disDiv = document.querySelectorAll('.discount-wrapper');
+        const lastDis1 = disDiv[disDiv.length- 1]
+        lastDis1.remove();
+
+        const empDiv = document.querySelectorAll(".empty-wrapper");
+        const lastDi2 = empDiv[empDiv.length-1];
+        lastDi2.remove();
+
+        deleteLastItem();
+
+        discountStatus.pop();
+        discountStatus.pop();
+        saved_disCounter--;
+        disCounter--;    
+      };
+
+      function deleteLastItem(){
+        // delete the last product name
+        const priceDiv = document.querySelectorAll(".price-wrapper");
+        const lastPrice = priceDiv[priceDiv.length-1];
+        lastPrice.remove();
+        // delete the last original price
+        const productDiv = document.querySelectorAll(".product-wrapper");
+        const lastProduct = productDiv[productDiv.length-1];
+        lastProduct.remove();
+        saved_price.pop()
+        discountStatus.pop()
+        counter--;
+        // send a POST request to update the server
+        sendPost("/delete");
+      };
 
       function deleteItem(){
         if(counter > 0){
-          itemDiv[0].removeChild(itemDiv[0].lastChild)
-          itemPriceDiv[0].removeChild(itemPriceDiv[0].lastChild)
-          // send a POST request to update the server
-          let xhr = new XMLHttpRequest();
-          xhr.open('POST', '/delete');
-          xhr.send();
-          counter--;
+          if( discountStatus.length>=2){
+            if(discountStatus[discountStatus.length-1] == true && discountStatus[discountStatus.length-2] == false){
+              deleteDiscount();
+              console.log(discountStatus)
+              
+            }else{
+              deleteLastItem();
+              console.log(discountStatus)
+            }
+          }else{
+            deleteLastItem()
+            console.log(discountStatus)
+          }   
+
         }
         else{
-          alert("No item is in the cart")    
+          alert("No item is in the cart");    
         }
-      }
-
-      async function clearItem(data){
-        document.querySelectorAll(".item").forEach(el => el.remove());
-        //const sum = document.getElementById("sum");
+      };
+      
+      function clearItem(data){
+        saved_price = [];
+        //document.querySelectorAll(".item").forEach(el => el.remove());
+        document.querySelectorAll(".content-item").forEach(el => el.remove());        
+        document.querySelectorAll(".content-price").forEach(el => el.remove());
+        document.querySelectorAll(".discount-wrapper").forEach(el => el.remove());
+        
         if (data !== undefined){
           sumDisplay(data);
         }else{
           // this case is triggered when the PAY button is called (closePopUp() function)
-          let xhr = new XMLHttpRequest();
-          xhr.open('POST', '/cancel');
-          xhr.send();
+          sendPost("/cancel");
         }  
       };
 
@@ -177,27 +304,27 @@
         overlay1.style.visibility = "visible";
         popup1.style.visibility = "visible";
         popup1.style.transform = "translate(-50%,-50%) scale(1)";       
-      }
+      };
 
        function openPopUp2(){
         overlay2.style.visibility = "visible";
         popup2.style.visibility = "visible";
         popup2.style.transform = "translate(-50%,-50%) scale(1)";  
 
-      }
+      };
 
       function closePopUp1(){
         overlay1.style.visibility = "hidden";
         popup1.style.visibility = "hidden";
         popup1.style.transform = "translate(-50%,-50%) scale(0.1)";
         clearItem();
-      }
+      };
       
       function closePopUp2(){
         overlay2.style.visibility = "hidden";
         popup2.style.visibility = "hidden";
         popup2.style.transform = "translate(-50%,-50%) scale(0.1)"; 
-      }
+      };
 
     </script>
   </body>
